@@ -43,6 +43,7 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
     protected $_options = array(
         'dublin_core_extended_refinements' => '',
         'dublin_core_extended_refines' => false,
+        'dublin_core_extended_oaipmh_unrefined_dc' => false,
     );
 
     private $_elements;
@@ -144,10 +145,14 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
      *
      * @return void
      */
-    public function hookConfigForm()
+    public function hookConfigForm($args)
     {
-        echo get_view()->partial(
-            'plugins/dublin-core-extended-config-form.php'
+        $view = $args['view'];
+        echo $view->partial(
+            'plugins/dublin-core-extended-config-form.php',
+             array(
+                'view' => $view,
+            )
         );
     }
 
@@ -357,6 +362,14 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
         include_once dirname(__FILE__) . '/metadata/QDc.php';
         if (class_exists($format)) {
             $metadataFormats['qdc'] = $format;
+        }
+
+        if (get_option('dublin_core_extended_oaipmh_unrefined_dc')) {
+            $format = 'OaiPmhRepository_Metadata_OaiDcUnrefined';
+            include_once dirname(__FILE__) . '/metadata/OaiDcUnrefined.php';
+            if (class_exists($format)) {
+                $metadataFormats['oai_dc'] = $format;
+            }
         }
 
         return $metadataFormats;
