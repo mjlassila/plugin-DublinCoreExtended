@@ -34,6 +34,7 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
         'response_contexts',
         'action_contexts',
         'items_browse_params',
+        'oaipmh_repository_metadata_formats',
     );
 
     /**
@@ -348,6 +349,17 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         return $params;
+    }
+
+    public function filterOaipmhRepositoryMetadataFormats($metadataFormats)
+    {
+        $format = 'OaiPmhRepository_Metadata_QDc';
+        include_once dirname(__FILE__) . '/metadata/QDc.php';
+        if (class_exists($format)) {
+            $metadataFormats['qdc'] = $format;
+        }
+
+        return $metadataFormats;
     }
 
     /**
