@@ -34,7 +34,7 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
         'response_contexts',
         'action_contexts',
         'items_browse_params',
-        'oaipmh_repository_metadata_formats',
+        'oai_pmh_repository_metadata_formats',
     );
 
     /**
@@ -356,23 +356,23 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
         return $params;
     }
 
-    public function filterOaipmhRepositoryMetadataFormats($metadataFormats)
+    public function filterOaiPmhRepositoryMetadataFormats($formats)
     {
-        $format = 'OaiPmhRepository_Metadata_QDc';
-        include_once dirname(__FILE__) . '/metadata/QDc.php';
-        if (class_exists($format)) {
-            $metadataFormats['qdc'] = $format;
-        }
+        $formats['qdc'] = array(
+            'class' => 'DublinCoreExtended_Metadata_QDc',
+            'namespace' => DublinCoreExtended_Metadata_QDc::METADATA_NAMESPACE,
+            'schema' => DublinCoreExtended_Metadata_QDc::METADATA_SCHEMA,
+        );
 
         if (get_option('dublin_core_extended_oaipmh_unrefined_dc')) {
-            $format = 'OaiPmhRepository_Metadata_OaiDcUnrefined';
-            include_once dirname(__FILE__) . '/metadata/OaiDcUnrefined.php';
-            if (class_exists($format)) {
-                $metadataFormats['oai_dc'] = $format;
-            }
+            $formats['oai_dc'] = array(
+                'class' => 'DublinCoreExtended_Metadata_OaiDcUnrefined',
+                'namespace' => DublinCoreExtended_Metadata_OaiDcUnrefined::METADATA_NAMESPACE,
+                'schema' => DublinCoreExtended_Metadata_OaiDcUnrefined::METADATA_SCHEMA,
+            );
         }
 
-        return $metadataFormats;
+        return $formats;
     }
 
     /**
