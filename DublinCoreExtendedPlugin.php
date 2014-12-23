@@ -364,6 +364,12 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
             'schema' => DublinCoreExtended_Metadata_QDc::METADATA_SCHEMA,
         );
 
+        $formats['qdc_finna'] = array(
+            'class' => 'DublinCoreExtended_Metadata_Finna',
+            'namespace' => DublinCoreExtended_Metadata_Finna::METADATA_NAMESPACE,
+            'schema' => DublinCoreExtended_Metadata_Finna::METADATA_SCHEMA,
+        );
+
         if (get_option('dublin_core_extended_oaipmh_unrefined_dc')) {
             $formats['oai_dc'] = array(
                 'class' => 'DublinCoreExtended_Metadata_OaiDcUnrefined',
