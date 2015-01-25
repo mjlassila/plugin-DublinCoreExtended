@@ -4,6 +4,7 @@
  * @subpackage MetadataFormats
  * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @copyright Copyright 2014 Daniel Berthereau
+ * @copyright Copyright 2015 Matti Lassila
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
@@ -129,8 +130,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             // Append the browse URI to all results.
             if ($elementName == 'identifier') {
                 
-                $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
-
+                $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
+                $coolUri->setAttribute('type', 'cooluri');
                 // Also append an identifier for each file.
                 if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files')) {
                     $files = $item->getFiles();
