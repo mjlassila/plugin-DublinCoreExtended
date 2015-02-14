@@ -242,7 +242,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             {
                 $itemTypeName = $itemType->name;
                 $qdc->appendNewElement(
-                            'dc:type', $this->translateItemType(strtolower(trim($itemTypeName)))); 
+                            'dc:type', $this->translateItemType(mb_strtolower(trim($itemTypeName), 'UTF-8'))); 
             }
         else
         {   
@@ -252,7 +252,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                  {
                     $itemtype = $dcType->text; 
                     $qdc->appendNewElement( 
-                            'dc:type', $this->translateItemType(strtolower(trim($itemtype))));   
+                            'dc:type', $this->translateItemType(mb_strtolower(trim($itemtype), 'UTF-8')));   
                  }
          
          
@@ -291,54 +291,59 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
     }
 
     protected function standardizeLanguage($rawLanguage)
-    {
-          if (strlen($rawLanguage) != 2) 
-                {
-                
-                    switch($rawLanguage)
+    {           
+                switch($rawLanguage)
                     {
                         case 'suomi':
+                        case 'fi':
                             $language = 'fin';
                             break;
                         case 'englanti':
+                        case 'en':
                             $language = 'eng';
                             break;
                         case 'ruotsi':
-                            $language = 'sv';
+                        case 'sv':
+                            $language = 'swe';
                             break;
                         case 'espanja':
-                            $language = 'es';
+                        case 'es':
+                            $language = 'spa';
                             break;
                         case 'hollanti':
-                            $language = 'nl';
+                        case 'nl':
+                            $language = 'dut';
                             break;
                         case 'italia':
-                            $language = 'it';
+                        case 'it':
+                            $language = 'ita';
                             break;
                         case 'latina':
-                            $language = 'la';
+                        case 'la':
+                            $language = 'lat';
                             break;
                         case 'venäjä':
-                            $language = 'ru';
+                        case 'ru':
+                            $language = 'rus';
                             break;
                         case 'ranska':
-                            $language = 'fr';
+                        case 'fr':
+                            $language = 'fre';
                             break;
                         case 'saksa':
-                            $language = 'de';
+                        case 'de':
+                            $language = 'ger';
                             break;
                         case 'viro':
-                            $language = 'et';
+                        case 'et':
+                            $language = 'est';
                             break;
                     
                         default:
-                            $language = 'fin';
-                    }
-                } 
-                else {
-                    $language = $rawLanguage;
-                }
-        return $language;
+                            $language = $rawLanguage;
+                    } 
+                
+                    return $language;
 
     }
 
@@ -350,7 +355,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                             $itemtype = 'Text';
                             break;
                         case 'still image':
-                            $itemtype = 'Image';
+                            $itemtype = 'StillImage';
                             break;
                         case 'artikkeli':
                             $itemtype = 'Text';
@@ -373,9 +378,20 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         case 'rakennuspiirustus':
                             $itemtype = 'Image';
                             break;
+                        case 'epub':
+                            $itemtype = 'Text';
+                            break;
+                        case 'teksti':
+                            $itemtype = 'Text';
+                            break;
                         case 'kuva':
                             $itemtype = 'Image';
                             break;
+                        case 'ääni':
+                            $itemtype = 'Sound';
+                            break;
+                        default:
+                            $itemtype = 'Text';
                     }
                     
             return str_replace(' ', '', ucwords($itemtype));
