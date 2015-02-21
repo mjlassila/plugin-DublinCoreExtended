@@ -209,7 +209,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcSubjects = $item->getElementTexts('Item Type Metadata','Aineistoryhmä');
                 foreach($dcSubjects as $dcSubject)
                 {
-                    $itemgroup = $this->appendNewElement('dc:subject', trim($dcSubject->text)); 
+                    $itemgroup = $qdc->appendNewElement('dc:subject', trim($dcSubject->text)); 
                     $itemgroup->setAttribute('scheme', 'kirjastovirma');
                 }
         }
@@ -218,7 +218,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcSubjects = $item->getElementTexts('Item Type Metadata','Aihekokonaisuus');
                 foreach($dcSubjects as $dcSubject)
                 {
-                    $subjectgroup = $this->appendNewElement('dc:subject', trim($dcSubject->text), 'dcterms:kirjastovirma'); 
+                    $subjectgroup = $qdc->appendNewElement('dc:subject', trim($dcSubject->text), 'dcterms:kirjastovirma'); 
                     $subjectgroup->setAttribute('scheme', 'kirjastovirma');
                 }
         }
@@ -227,7 +227,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcLocations = $item->getElementTexts('Item Type Metadata','Paikka');
                 foreach($dcLocations as $dcLocation)
                 {
-                    $this->appendNewElement('dcterms:coverage', trim($dcLocation->text)); 
+                    $qdc->appendNewElement('dcterms:coverage', trim($dcLocation->text)); 
                     
                 }
         }
