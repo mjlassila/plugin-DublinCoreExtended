@@ -9,13 +9,7 @@
  */
 
 /**
- * Class implementing DCMI Metadata Terms metadata output (qdc).
- *
- * This format is not standardized, but used by some repositories, as DSpace
- * and a mediawiki extension (ProofreadPage: https://wikisource.org/wiki/Special:ProofreadIndexOaiSchema/qdc).
- * The schema comes from the Science & Technology Facilities Council of the
- * United Kingdom.
- *
+ * Class implementing DCMI Metadata Terms metadata output (qdc_finna).
  * @see http://epubs.cclrc.ac.uk/xsd/qdc.xsd
  * @see http://dublincore.org/schemas/xmls/qdc/dcterms.xsd
  *
@@ -116,10 +110,13 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         }
                     }
                     else if ($elementName == "language") {
-                        $qdc->appendNewElement($namespace . $elementName, $this->standardizeLanguage($value));
+                        $qdc->appendNewElement($namespace . $elementName, $this->standardizeLanguage(mb_strtolower(trim($value), 'UTF-8')));
                     }
                     else if ($elementName == "type") {
-                        $qdc->appendNewElement($namespace . $elementName, $this->translateItemType($value));
+                        $qdc->appendNewElement($namespace . $elementName, $this->translateItemType(mb_strtolower(trim($value), 'UTF-8')));
+                    }
+                    else if ($elementName == "format") {
+                        $qdc->appendNewElement($namespace . $elementName, $this->translateFormat(mb_strtolower(trim($value), 'UTF-8')));
                     }  
                     else {
                         $qdc->appendNewElement($namespace . $elementName, $value);
@@ -395,6 +392,39 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     }
                     
             return str_replace(' ', '', ucwords($itemtype));
+    }
+
+    protected function translateFormat($rawFormat)
+     {
+         switch($rawFormat)
+                    {
+                        case 'teksti/pdf':
+                            $format = 'application/pdf';
+                            break;
+                        case 'teksti/epub':
+                        case 'text/epub':
+                            $format = 'application/epub+zip';
+                            break;
+                        case 'teksti/plain':
+                            $format = 'text/plain';
+                            break;
+                        case 'kuva/jpeg':
+                            $format = 'image/jpeg';
+                            break;
+                        case 'kuva/tiff':
+                            $format = 'image/tiff';
+                            break;
+                        case 'ääni/mpeg':
+                            $format = 'audio/mpeg';
+                            break;
+                        case 'video/mpeg':
+                            $format = 'video/mpeg';
+                            break;
+                        default:
+                            $format = $rawFormat;
+                    }
+                    
+            return $format;
     }
 
     protected function availableItemtypeFields()
