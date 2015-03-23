@@ -70,8 +70,10 @@ class DublinCoreExtendedPlugin extends Omeka_Plugin_AbstractPlugin
     {
         // Add the new elements to the Dublin Core element set.
         $elementSet = $this->_db->getTable('ElementSet')->findByName('Dublin Core');
+        $elementTable = $this->_db->getTable('Element');
         foreach ($this->_elements as $key => $element) {
-            if (!in_array($element['label'], $this->_dcElements)) {
+            $existingElement = $elementTable->findByElementSetNameAndElementName('Dublin Core', $element['label']);
+            if (!in_array($element['label'], $this->_dcElements) && empty($existingElement)) {
                 $sql = "
                 INSERT INTO `{$this->_db->Element}` (`element_set_id`, `name`, `description`)
                 VALUES (?, ?, ?)";
