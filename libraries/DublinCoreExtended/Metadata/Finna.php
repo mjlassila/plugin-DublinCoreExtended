@@ -335,6 +335,10 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         case 'et':
                             $language = 'est';
                             break;
+                        case 'tanska':
+                        case 'da':
+                            $language = 'dan';
+                            break;
                     
                         default:
                             $language = $rawLanguage;
