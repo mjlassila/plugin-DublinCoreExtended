@@ -30,5 +30,12 @@
                 <?php endif; ?>
             </p>
         </div>
+        <?php if (plugin_is_active('OaiPmhRepository')): ?>
+            <div class="inputs five columns omega">
+            <label for="dublin_core_exclude_collections"><?php echo 'Do not include file links for items from these collections: '; ?></label>
+            <?php echo get_view()->formText('dublin_core_exclude_collections', get_option('dublin_core_exclude_collections'));?>
+            <p class="explanation"><?php echo __('Comma-separated list of collection ids'); ?></p>
+            </div> 
+        <?php endif; ?>
     </div>
 </fieldset>

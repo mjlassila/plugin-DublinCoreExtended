@@ -124,13 +124,22 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 }
             }   
 
+            // Option for excluding files for spesified collections
+
+            $excludeFiles = FALSE;
+            if (get_option('dublin_core_exclude_collections')!='') {
+                $itemCollection = $item->collection_id;
+                $ignoredCollections = explode(',',get_option('dublin_core_exclude_collections'));
+                $excludeFiles = in_array($itemCollection,$ignoredCollections);
+            }
+
             // Append the browse URI to all results.
             if ($elementName == 'identifier') {
                 
                 $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 $coolUri->setAttribute('type', 'cooluri');
                 // Also append an identifier for each file.
-                if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files')) {
+                if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files') && !$excludeFiles) {
                     $files = $item->getFiles();
                     foreach ($files as $file) {
                         $qdc->appendNewElement('dc:identifier', $file->getWebPath('original'));
@@ -272,8 +281,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 } 
                 
             }
-
-        if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files')) {
+        
+        if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files') && !$excludeFiles) {
             $files = $item->getFiles();
                 foreach ($files as $file) {
                     $original = $qdc->appendNewElement('kk:file', $file->getWebPath('original'));
