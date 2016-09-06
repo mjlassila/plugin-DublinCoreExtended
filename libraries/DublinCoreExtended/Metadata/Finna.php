@@ -60,10 +60,10 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
         $qdc->setAttribute('xmlns:kk', self::DC_KK_NAMESPACE_URI);
         $qdc->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
 
-        // Each of the 14 unqualified Dublin Core elements. Type is omitted
+        // Each of the 14 unqualified Dublin Core elements. Type and description are omitted
         // and handled separately
         $dcElementNames = array(
-            'title', 'creator', 'subject', 'description',
+            'title', 'creator', 'subject','description',
             'publisher', 'contributor', 'date',
             'format', 'identifier', 'source', 'language',
             'relation', 'coverage', 'rights',
@@ -117,7 +117,15 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     }
                     else if ($elementName == "format") {
                         $qdc->appendNewElement($namespace . $elementName, $this->translateFormat(mb_strtolower(trim($value), 'UTF-8')));
-                    }  
+                    }
+                    // We want to display description as abstract in Finna
+                    else if ($elementName == "description") {
+                        $qdc->appendNewElement("dcterms:" . 'abstract', $value);
+                    }
+                    // We want to display date created as plain date in Finna
+                    else if ($elementName == "created") {
+                        $qdc->appendNewElement("dc:" . 'date', $value);
+                    }      
                     else {
                         $qdc->appendNewElement($namespace . $elementName, $value);
                     }
@@ -138,13 +146,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 
                 $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 $coolUri->setAttribute('type', 'cooluri');
-                // Also append an identifier for each file.
-                if (get_option('oaipmh_repository_expose_files') && metadata($item, 'has files') && !$excludeFiles) {
-                    $files = $item->getFiles();
-                    foreach ($files as $file) {
-                        $qdc->appendNewElement('dc:identifier', $file->getWebPath('original'));
-                    }
-                }
+                
             }
         }
 
