@@ -267,6 +267,20 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             }
         }
 
+        // Include WGS84 coordinates if Geolocation plugin is active
+        
+        if (plugin_is_active('Geolocation')) {
+            $location = $this->fetchItemLocation($item);
+            if($location) {
+                $geolocation = $qdc->appendNewElement(
+                    "dcterms:" . 'coverage', $location["lat"] . ',' . $location["lon"]);
+                $geolocation->setAttribute('type','geocoding');
+                $geolocation->setAttribute('datum','WGS84');
+                $geolocation->setAttribute('srid','4326');
+                $geolocation->setAttribute('format','lat,lon');
+            }
+        }
+
 
 
         // Fields for Finna
@@ -294,8 +308,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         $thumbnail->setAttribute('bundle','THUMBNAIL');
                     }
                 }
-            }
-
+            }        
+ 
     }
 
     protected function standardizeLanguage($rawLanguage)
@@ -457,6 +471,17 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
     
         return $elementNames;
 
+    }
+
+    protected function fetchItemLocation($item)
+    {
+            $db = Zend_Registry::get('bootstrap')->getResource('db');
+            $location = $db->getTable('Location')->findBy(array(
+            'item_id' => $item->id,
+            ));
+            if ($location) {
+            return array("lat"=>$location[0]["latitude"],"lon"=>$location[0]["longitude"]);
+            }
     }
 
 }
