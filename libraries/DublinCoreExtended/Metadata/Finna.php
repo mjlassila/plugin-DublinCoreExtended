@@ -17,6 +17,9 @@
  * @package DublinCoreExtended
  * @subpackage Metadata Formats
  */
+
+define('DC_EXTENDED_PLUGIN_DIRECTORY', dirname(__FILE__));
+
 class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_FormatInterface
 {
     /** OAI-PMH metadata prefix */
@@ -53,6 +56,11 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
         $qdc = $document->createElementNS(
             self::METADATA_NAMESPACE, 'dcterms:qualifieddc');
         $metadataElement->appendChild($qdc);
+        $iniFile = dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR . 'excluded-dc-values.ini';
+
+        $ini = new Zend_Config_Ini($iniFile, 'excluded-dc-values');
+        $excludePublisherValues = $ini->publisher->toArray();
+        
 
         
         $qdc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
@@ -125,6 +133,15 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     // We want to display date created as plain date in Finna
                     else if ($elementName == "created") {
                         $qdc->appendNewElement("dc:" . 'date', $value);
+                    }
+                    // We want to filter out some publisher names and insttead
+                    // write them to the dcterms:mediator
+                    else if ($elementName == "publisher") {
+                        if (!in_array($value,$excludePublisherValues)) {
+                            $qdc->appendNewElement("dc:" . 'publisher', $value);
+                        } else {
+                            $qdc->appendNewElement("dcterms:" . 'mediator', $value);
+                        }
                     }      
                     else {
                         $qdc->appendNewElement($namespace . $elementName, $value);
