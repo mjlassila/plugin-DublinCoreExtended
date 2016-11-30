@@ -74,7 +74,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             'title', 'creator', 'subject','description',
             'publisher', 'contributor', 'date',
             'format', 'identifier', 'source', 'language',
-            'relation', 'coverage', 'rights',
+            'coverage', 'rights',
         );
 
         // Each of metadata terms.
@@ -142,7 +142,12 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         } else {
                             $qdc->appendNewElement("dcterms:" . 'mediator', $value);
                         }
-                    }      
+                    }
+                    // Omit relation as it messes up Finna
+                    else if ($elementName == "relation") {
+                        
+                    }
+                         
                     else {
                         $qdc->appendNewElement($namespace . $elementName, $value);
                     }
@@ -165,6 +170,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 $coolUri->setAttribute('type', 'cooluri');
                 
             }
+
         }
 
         /* Handle some of the Item Type Metadata fields used in Finnish libraries*/
@@ -298,6 +304,14 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             }
         }
 
+        // Include relation field for indicating full-text availability if the case
+        // files are suppressed
+
+        if ($excludeFiles) {
+                $relation = $qdc->appendNewElement('dc:relation', record_url($item, 'show', true));
+                
+            }
+
 
 
         // Fields for Finna
@@ -306,7 +320,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 'Dublin Core','Identifier');
             foreach($dcIdentifiers as $dcIdentifier)
             {
-                if (substr($dcIdentifier->text, 0, 3) == 'URN') {
+                if (substr($dcIdentifier->text, 0, 3) == 'URN' && !$excludeFiles) {
                    $urn = $qdc->appendNewElement( 
                     'kk:permaddress','http://www.urn.fi/' . trim($dcIdentifier->text));
                    $urn->setAttribute('type', 'urn');
@@ -398,7 +412,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                             $itemtype = 'Text';
                             break;
                         case 'still image':
-                            $itemtype = 'StillImage';
+                            $itemtype = 'Image';
                             break;
                         case 'artikkeli':
                             $itemtype = 'Text';
