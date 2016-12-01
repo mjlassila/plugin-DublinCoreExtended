@@ -126,10 +126,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     else if ($elementName == "format") {
                         $qdc->appendNewElement($namespace . $elementName, $this->translateFormat(mb_strtolower(trim($value), 'UTF-8')));
                     }
-                    // We want to display description as abstract in Finna
-                    else if ($elementName == "description") {
-                        $qdc->appendNewElement("dcterms:" . 'abstract', $value);
-                    }
+                
                     // We want to display date created as plain date in Finna
                     else if ($elementName == "created") {
                         $qdc->appendNewElement("dc:" . 'date', $value);
@@ -143,10 +140,14 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                             $qdc->appendNewElement("dcterms:" . 'mediator', $value);
                         }
                     }
-                    // Omit relation as it messes up Finna
-                    else if ($elementName == "relation") {
+                    // Omit relation as it messes up Finna. Handle abstract and description separately
+                    else if ($elementName == "relation" || 
+                             $elementName == "abstract" || 
+                             $elementName == "description") {
                         
                     }
+                    
+
                          
                     else {
                         $qdc->appendNewElement($namespace . $elementName, $value);
@@ -163,14 +164,39 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 $excludeFiles = in_array($itemCollection,$ignoredCollections);
             }
 
-            // Append the browse URI to all results.
-            if ($elementName == 'identifier') {
+            // Append the browse URI to all results when there are no files
+            if ($elementName == 'identifier' && !metadata($item, 'has files')) {
                 
                 $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 $coolUri->setAttribute('type', 'cooluri');
                 
             }
 
+        }
+
+        /* Handle abstract field */
+
+        $dcAbstracts = $item->getElementTexts(
+                'Dublin Core','Abstract');
+        $abstractArray = array();
+        $dcDescriptions = $item->getElementTexts(
+                'Dublin Core','Description');
+        $abstractArray = array();
+        foreach($dcAbstracts as $dcAbstract)
+        {
+            array_push($abstractArray,$dcAbstract->text); 
+                
+        }
+        foreach($dcDescriptions as $dcDescription)
+        {
+            array_push($abstractArray,$dcDescription->text); 
+                
+        }
+
+        if (!empty($abstractArray)) {
+            $fullAbstract = implode(' ', $abstractArray);
+            $abstract = $qdc->appendNewElement( 
+                    'dcterms:abstract',$fullAbstract);
         }
 
         /* Handle some of the Item Type Metadata fields used in Finnish libraries*/
@@ -305,9 +331,9 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
         }
 
         // Include relation field for indicating full-text availability if the case
-        // files are suppressed
+        // files are suppressed but still available in Omeka
 
-        if ($excludeFiles) {
+        if ($excludeFiles && metadata($item, 'has files')) {
                 $relation = $qdc->appendNewElement('dc:relation', record_url($item, 'show', true));
                 
             }
