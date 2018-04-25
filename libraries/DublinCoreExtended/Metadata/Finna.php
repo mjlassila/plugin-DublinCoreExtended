@@ -289,6 +289,61 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 }
         }
 
+        if (in_array("Biografia", $itemTypeFields)) {
+            $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
+                foreach($dcBiographys as $dcBiography)
+                {
+                    $qdc->appendNewElement('dc:description', trim($dcBiography->text)); 
+                    
+                }
+        }
+
+        if (in_array("Elinvuodet", $itemTypeFields)) {
+            $dcLifespans = $item->getElementTexts('Item Type Metadata','Elinvuodet');
+                foreach($dcLifespans as $dcLifespan)
+                {
+                    $temporal = $qdc->appendNewElement('dc:coverage', trim($dcLifespan->text)); 
+                    $temporal->setAttribute('type', 'temporal');
+                    
+                }
+        }
+
+        if (in_array("Muuta merkittävää", $itemTypeFields)) {
+            $dcAdditionalInfos = $item->getElementTexts('Item Type Metadata','Muuta merkittävää');
+                foreach($dcAdditionalInfos as $dcAdditionalInfo)
+                {
+                    $qdc->appendNewElement('dc:description', trim($dcAdditionalInfo->text)); 
+                    
+                }
+        }
+
+        if (in_array("Digitoidun teoksen tiedot", $itemTypeFields)) {
+            $dcSources = $item->getElementTexts('Item Type Metadata','Digitoidun teoksen tiedot');
+                foreach($dcSources as $dcSource)
+                {
+                    $qdc->appendNewElement('dcterms:source', trim($dcSource->text)); 
+                    
+                }
+        }
+
+        if (in_array("Teoksen kuvaus", $itemTypeFields)) {
+            $dcDescriptions = $item->getElementTexts('Item Type Metadata','Teoksen kuvaus');
+                foreach($dcDescriptions as $dcDescription)
+                {
+                    $qdc->appendNewElement('dc:description', trim($dcDescription->text)); 
+                    
+                }
+        }
+
+        if (in_array("Mistä on kyse?", $itemTypeFields)) {
+            $dcDescriptions = $item->getElementTexts('Item Type Metadata','Mistä on kyse?');
+                foreach($dcDescriptions as $dcDescription)
+                {
+                    $qdc->appendNewElement('dc:description', trim($dcDescription->text)); 
+                    
+                }
+        }
+
         
         /* Handle itemtype if empty in metadata */
         
@@ -473,6 +528,10 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                         case 'ääni':
                             $itemtype = 'Sound';
                             break;
+                        case 'digitoitu teos': 
+                            $itemtype = 'Text';
+                        case 'bibliografia':
+                            $itemtype = 'Text';
                         default:
                             $itemtype = 'Text';
                     }
