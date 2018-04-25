@@ -199,6 +199,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     'dcterms:abstract',$fullAbstract);
         }
 
+
+
         /* Handle some of the Item Type Metadata fields used in Finnish libraries*/
 
         $itemTypeFields = $this->availableItemtypeFields();
@@ -293,7 +295,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
                 foreach($dcBiographys as $dcBiography)
                 {
-                    $qdc->appendNewElement('dc:description', trim($dcBiography->text)); 
+                    $qdc->appendNewElement('dcterms:abstract', trim($dcBiography->text)); 
                     
                 }
         }
@@ -312,7 +314,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcAdditionalInfos = $item->getElementTexts('Item Type Metadata','Muuta merkittävää');
                 foreach($dcAdditionalInfos as $dcAdditionalInfo)
                 {
-                    $qdc->appendNewElement('dc:description', trim($dcAdditionalInfo->text)); 
+                    $qdc->appendNewElement('dcterms:abstract', trim($dcAdditionalInfo->text)); 
                     
                 }
         }
@@ -330,7 +332,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcDescriptions = $item->getElementTexts('Item Type Metadata','Teoksen kuvaus');
                 foreach($dcDescriptions as $dcDescription)
                 {
-                    $qdc->appendNewElement('dc:description', trim($dcDescription->text)); 
+                    $qdc->appendNewElement('dcterms:abstract', trim($dcDescription->text)); 
                     
                 }
         }
@@ -339,7 +341,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcDescriptions = $item->getElementTexts('Item Type Metadata','Mistä on kyse?');
                 foreach($dcDescriptions as $dcDescription)
                 {
-                    $qdc->appendNewElement('dc:description', trim($dcDescription->text)); 
+                    $qdc->appendNewElement('dcterms:abstract', trim($dcDescription->text)); 
                     
                 }
         }
