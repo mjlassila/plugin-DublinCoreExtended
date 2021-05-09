@@ -164,8 +164,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 $excludeFiles = in_array($itemCollection,$ignoredCollections);
             }
 
-            // Append the browse URI to all results when there are no files
-            if ($elementName == 'identifier' && !metadata($item, 'has files')) {
+            // Append the browse URI to all results
+            if ($elementName == 'identifier') {
                 
                 $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 $coolUri->setAttribute('type', 'cooluri');
@@ -176,23 +176,37 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
 
         /* Handle abstract field */
 
+        $itemTypeFields = $this->availableItemtypeFields();
+
+
         $dcAbstracts = $item->getElementTexts(
                 'Dublin Core','Abstract');
         $abstractArray = array();
         $dcDescriptions = $item->getElementTexts(
                 'Dublin Core','Description');
+        
         $abstractArray = array();
+
         foreach($dcAbstracts as $dcAbstract)
         {
             array_push($abstractArray,$dcAbstract->text); 
                 
         }
+
         foreach($dcDescriptions as $dcDescription)
         {
             array_push($abstractArray,$dcDescription->text); 
                 
         }
-
+        if (in_array("Biografia", $itemTypeFields)) {
+            $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
+            foreach($dcBiographys as $biography)
+            {
+            array_push($abstractArray, trim($biography->text));
+            }
+                
+        } 
+        
         if (!empty($abstractArray)) {
             $fullAbstract = implode(' ', $abstractArray);
             $abstract = $qdc->appendNewElement( 
@@ -203,7 +217,6 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
 
         /* Handle some of the Item Type Metadata fields used in Finnish libraries*/
 
-        $itemTypeFields = $this->availableItemtypeFields();
 
         if (in_array("YKL", $itemTypeFields)) {
             $dcClassifications = $item->getElementTexts('Item Type Metadata','YKL');
@@ -291,14 +304,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 }
         }
 
-        if (in_array("Biografia", $itemTypeFields)) {
-            $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
-                foreach($dcBiographys as $dcBiography)
-                {
-                    $qdc->appendNewElement('dcterms:abstract', trim($dcBiography->text)); 
-                    
-                }
-        }
+        
 
         if (in_array("Elinvuodet", $itemTypeFields)) {
             $dcLifespans = $item->getElementTexts('Item Type Metadata','Elinvuodet');
