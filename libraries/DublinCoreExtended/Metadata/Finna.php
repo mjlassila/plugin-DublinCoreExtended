@@ -76,6 +76,8 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             'format', 'identifier', 'source', 'language',
             'coverage', 'rights',
         );
+        // Each item type might have their own fields defined. They need to be mapped to standard DC fields.
+        $itemTypeFields = $this->availableItemtypeFields();
 
         // Each of metadata terms.
         require dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR . 'elements.php';
@@ -123,7 +125,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     else if ($elementName == "type") {
                         $qdc->appendNewElement($namespace . $elementName, $this->translateItemType(mb_strtolower(trim($value), 'UTF-8')));
                     }
-                    else if ($elementName == "format") {
+                    else if ($elementName == "format" & !in_array("Sivunumerot", $itemTypeFields)) {
                         $qdc->appendNewElement($namespace . $elementName, $this->translateFormat(mb_strtolower(trim($value), 'UTF-8')));
                     }
                 
@@ -131,7 +133,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                     else if ($elementName == "created") {
                         $qdc->appendNewElement("dc:" . 'date', $value);
                     }
-                    // We want to filter out some publisher names and insttead
+                    // We want to filter out some publisher names and instead
                     // write them to the dcterms:mediator
                     else if ($elementName == "publisher") {
                         if (!in_array($value,$excludePublisherValues)) {
@@ -164,49 +166,35 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 $excludeFiles = in_array($itemCollection,$ignoredCollections);
             }
 
-            // Append the browse URI to all results
+	// Append the browse URI to all results
             if ($elementName == 'identifier') {
                 
                 $coolUri = $qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 $coolUri->setAttribute('type', 'cooluri');
                 
-            }
+            }                
 
         }
 
         /* Handle abstract field */
-
-        $itemTypeFields = $this->availableItemtypeFields();
-
 
         $dcAbstracts = $item->getElementTexts(
                 'Dublin Core','Abstract');
         $abstractArray = array();
         $dcDescriptions = $item->getElementTexts(
                 'Dublin Core','Description');
-        
         $abstractArray = array();
-
         foreach($dcAbstracts as $dcAbstract)
         {
             array_push($abstractArray,$dcAbstract->text); 
                 
         }
-
         foreach($dcDescriptions as $dcDescription)
         {
             array_push($abstractArray,$dcDescription->text); 
                 
         }
-        if (in_array("Biografia", $itemTypeFields)) {
-            $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
-            foreach($dcBiographys as $biography)
-            {
-            array_push($abstractArray, trim($biography->text));
-            }
-                
-        } 
-        
+
         if (!empty($abstractArray)) {
             $fullAbstract = implode(' ', $abstractArray);
             $abstract = $qdc->appendNewElement( 
@@ -217,6 +205,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
 
         /* Handle some of the Item Type Metadata fields used in Finnish libraries*/
 
+        $itemTypeFields = $this->availableItemtypeFields();
 
         if (in_array("YKL", $itemTypeFields)) {
             $dcClassifications = $item->getElementTexts('Item Type Metadata','YKL');
@@ -272,7 +261,27 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcCitations = $item->getElementTexts('Item Type Metadata','Lehden nimi');
                 foreach($dcCitations as $dcCitation)
                 {
-                    $qdc->appendNewElement('dcterms:bibliographicCitation', trim($dcCitation->text)); 
+                    $parentPub = $qdc->appendNewElement('dc:relation', trim($dcCitation->text));
+                    $parentPub->setAttribute('type', 'ispartof'); 
+                    
+                }
+        }
+
+        if (in_array("Lehden numero", $itemTypeFields)) {
+            $dcNumbers = $item->getElementTexts('Item Type Metadata','Lehden numero');
+                foreach($dcNumbers as $dcNumber)
+                {
+                    $parentNumber = $qdc->appendNewElement('dc:relation', trim($dcNumber->text));
+                    $parentNumber->setAttribute('type', 'issue'); 
+                    
+                }
+        }
+
+        if (in_array("Sivunumerot", $itemTypeFields)) {
+            $dcCitations = $item->getElementTexts('Item Type Metadata','Sivunumerot');
+                foreach($dcCitations as $dcCitation)
+                {
+                    $qdc->appendNewElement('dc:format', trim($dcCitation->text)); 
                     
                 }
         }
@@ -304,7 +313,14 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
                 }
         }
 
-        
+        if (in_array("Biografia", $itemTypeFields)) {
+            $dcBiographys = $item->getElementTexts('Item Type Metadata','Biografia');
+                foreach($dcBiographys as $dcBiography)
+                {
+                    $qdc->appendNewElement('dcterms:abstract', trim($dcBiography->text)); 
+                    
+                }
+        }
 
         if (in_array("Elinvuodet", $itemTypeFields)) {
             $dcLifespans = $item->getElementTexts('Item Type Metadata','Elinvuodet');
@@ -609,3 +625,4 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
     }
 
 }
+
