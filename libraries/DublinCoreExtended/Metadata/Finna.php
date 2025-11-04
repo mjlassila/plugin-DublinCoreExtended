@@ -269,7 +269,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
 
         if (in_array("Lehden numero", $itemTypeFields)) {
             $dcNumbers = $item->getElementTexts('Item Type Metadata','Lehden numero');
-                foreach($dcNumbers as $dcNumber)
+                foreach($dcNumbers as $dcNumbers)
                 {
                     $parentNumber = $qdc->appendNewElement('dc:relation', trim($dcNumber->text));
                     $parentNumber->setAttribute('type', 'issue'); 
@@ -281,7 +281,7 @@ class DublinCoreExtended_Metadata_Finna implements OaiPmhRepository_Metadata_For
             $dcCitations = $item->getElementTexts('Item Type Metadata','Sivunumerot');
                 foreach($dcCitations as $dcCitation)
                 {
-                    $qdc->appendNewElement('dc:format', trim($dcCitation->text)); 
+                    $qdc->appendNewElement('dc:format', "s. " . trim($dcCitation->text)); 
                     
                 }
         }
